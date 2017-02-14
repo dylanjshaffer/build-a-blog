@@ -25,6 +25,10 @@ class Post(db.Model):
     body = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
 
+class FrontPage(Handler):
+    def get(self):
+        self.redirect('/newpost')
+
 class MainBlog(Handler):
     def render_main(self, title='', body=''):
         posts = db.GqlQuery('SELECT * FROM Post ORDER BY created DESC LIMIT 5')
@@ -65,6 +69,7 @@ class ViewPostHandler(Handler):
 
 
 app = webapp2.WSGIApplication([
+    ('/', FrontPage),
     ('/blog', MainBlog),
     ('/newpost', NewPost),
     webapp2.Route('/blog/<id:\d+>', ViewPostHandler),
