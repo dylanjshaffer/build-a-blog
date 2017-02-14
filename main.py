@@ -18,10 +18,42 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
-class MainPage(Handler):
+class Post(db.Model):
+    title = db.StringProperty(required = True)
+    body = db.TextProperty(required = True)
+    created = db.DateTimeProperty(auto_now_add = True)
+
+class MainBlog(Handler):
+    def render_main(self, title='', body=''):
+        posts = db.GqlQuery('SELECT * FROM Post ORDER BY created DESC LIMIT 5')
+
+        self.render('main-blog.html', posts=posts)
+
     def get(self):
-        self.render('front.html')
+        self.render_main()
+
+class NewPost(Handler):
+    def render_form(self, title='', body='', error=''):
+        self.render('new-post.html', title=title, body=body, error=error)
+
+    def get(self):
+        self.render_form()
+
+    def post(self):
+        title = (self.request.get('title')).strip()
+        body = (self.request.get('body')).strip()
+        # TODO Print error if empty field(spaces) is submitted
+        if title and body:
+            p = Post(title=title, body=body)
+            p.put()
+            self.redirect('/blog')
+        else:
+            error = 'Please include a title and body!'
+            self.render_form(title, body, error)
+
+
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage)
+    ('/blog', MainBlog),
+    ('/newpost', NewPost),
 ], debug=True)
