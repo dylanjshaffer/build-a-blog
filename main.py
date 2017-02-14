@@ -48,7 +48,9 @@ class NewPost(Handler):
         if title and body:
             p = Post(title=title, body=body)
             p.put()
-            self.redirect('/blog')
+            p_id = p.key().id()
+            perma = '/blog/' + str(p_id)
+            self.redirect(perma)
         else:
             error = 'Please include a title and body!'
             self.render_form(title, body, error)
