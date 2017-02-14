@@ -4,6 +4,8 @@ import jinja2
 
 from google.appengine.ext import db
 
+# TODO redirect to '/blog' from '/'
+
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
@@ -42,7 +44,7 @@ class NewPost(Handler):
     def post(self):
         title = (self.request.get('title')).strip()
         body = (self.request.get('body')).strip()
-        # TODO Print error if empty field(spaces) is submitted
+
         if title and body:
             p = Post(title=title, body=body)
             p.put()
@@ -51,9 +53,19 @@ class NewPost(Handler):
             error = 'Please include a title and body!'
             self.render_form(title, body, error)
 
+class ViewPostHandler(Handler):
+    def render_post(self, post='', error=''):
+        post = Post.get_by_id(int(post_id))
+        if not post:
+            error = 'This post does not exist!'
+        self.render('view-post.html', post=post, error=error)
+
+    def get(self):
+        self.render_post()
 
 
 app = webapp2.WSGIApplication([
     ('/blog', MainBlog),
     ('/newpost', NewPost),
+    webapp2.Route('/blog/<id:\d+>', ViewPostHandler),
 ], debug=True)
