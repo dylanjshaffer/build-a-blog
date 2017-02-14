@@ -54,14 +54,12 @@ class NewPost(Handler):
             self.render_form(title, body, error)
 
 class ViewPostHandler(Handler):
-    def render_post(self, post='', error=''):
-        post = Post.get_by_id(int(post_id))
+
+    def get(self, id, post='', error=''):
+        post = Post.get_by_id(int(id))
         if not post:
             error = 'This post does not exist!'
         self.render('view-post.html', post=post, error=error)
-
-    def get(self):
-        self.render_post()
 
 
 app = webapp2.WSGIApplication([
