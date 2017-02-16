@@ -4,8 +4,6 @@ import jinja2
 
 from google.appengine.ext import db
 
-# TODO redirect to '/blog' from '/'
-
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
@@ -31,9 +29,10 @@ class FrontPage(Handler):
 
 class MainBlog(Handler):
     def render_main(self, title='', body=''):
-        posts = db.GqlQuery('SELECT * FROM Post ORDER BY created DESC LIMIT 5')
 
-        self.render('main-blog.html', posts=posts)
+            posts = db.GqlQuery('SELECT * FROM Post ORDER BY created DESC')
+            self.render('main-blog.html', posts=posts)
+
 
     def get(self):
         self.render_main()
